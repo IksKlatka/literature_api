@@ -2,6 +2,8 @@ from flask import Flask
 from db import db
 from flask_smorest import Api
 import os
+from resources.books import blp as BooksBlueprint
+from resources.countries import blp as CountriesBlueprint
 
 
 def create_app(db_url= None):
@@ -23,5 +25,7 @@ def create_app(db_url= None):
     with app.app_context():
         db.create_all()
 
-    api.register_blueprint()
-    api.register_blueprint()
+    api.register_blueprint(BooksBlueprint)
+    api.register_blueprint(CountriesBlueprint)
+
+    return app
