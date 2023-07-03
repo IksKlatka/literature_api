@@ -2,27 +2,59 @@ from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from db import db
 from models import CountryModel
+from schema import CountrySchema
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-blp = Blueprint("CountriesBlueprint", __name__, description="Books CRUD.")
+blp = Blueprint("Countries", __name__, description="Books CRUD.")
 
 @blp.route('/country/<string:country_id>')
 class Country(MethodView):
+    @blp.response(200, CountrySchema)
+    def get(self, country_id):
+        country = CountryModel.query.get_or_404(country_id)
+        return country
 
-    def get(self):
-        pass
+    def delete(self, country_id):
+        country = CountryModel.query.get_or_404(country_id)
+        db.session.delete(country)
+        db.session.commit()
+        return {"message": "Country {} successfully deleted.".format(CountryModel.name)}
 
-    def delete(self):
-        pass
+    @blp.arguments(CountrySchema)
+    @blp.response(201, CountrySchema)
+    def put(self, country_id, country_data):
+        country = CountryModel(country_id)
 
-    def put(self):
-        pass
+        if country:
+            country.name = country_data['name']
+            country.continent = country_data['continent']
+        else:
+            country = CountryModel(id= country_id, **country_data)
 
+        db.session.add(country)
+        db.session.commit()
+
+        return country
 
 @blp.route('/country')
 class CountriesList(MethodView):
 
+    @blp.response(200, CountrySchema(many=True))
     def get(self):
-        pass
+        return CountryModel.query.all()
 
-    def post(self):
-        pass
+    @blp.arguments(CountrySchema)
+    @blp.response(201, CountrySchema)
+    def post(self, country_data):
+
+        country = CountryModel(**country_data)
+
+        try:
+            db.session.add(country)
+            db.session.commit()
+        except IntegrityError:
+            abort(400, "Country already exists.")
+        except SQLAlchemyError:
+            abort(500, "SQLAlchemyError occurred while inserting country.")\
+
+        return country
