@@ -5,7 +5,7 @@ from models import CountryModel
 from schema import CountrySchema
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-blp = Blueprint("Countries", __name__, description="Books CRUD.")
+blp = Blueprint("Countries", __name__, description="Countries CRUD.")
 
 @blp.route('/country/<string:country_id>')
 class Country(MethodView):

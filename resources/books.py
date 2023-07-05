@@ -30,6 +30,7 @@ class Book(MethodView):
         if book:
             book.title = book_data['title']
             book.author = book_data['author']
+            book.genre = book_data['genre']
             book.year_published = book_data['year_published']
             book.country_id = book_data['country_id']
         else:
@@ -41,7 +42,7 @@ class Book(MethodView):
         return book
 @blp.route('/book')
 class BookList(MethodView):
-    @blp.response(201, BookSchema(many=True))
+    @blp.response(200, BookSchema(many=True))
     def get(self):
         return BookModel.query.all()
 

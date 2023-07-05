@@ -4,6 +4,8 @@ from flask_smorest import Api
 import os
 from resources.books import blp as BooksBlueprint
 from resources.countries import blp as CountriesBlueprint
+from resources.rents import blp as RentalBlueprint
+from resources.clients import blp as ClientBlueprint
 
 
 def create_app(db_url= None):
@@ -27,6 +29,8 @@ def create_app(db_url= None):
 
     api.register_blueprint(BooksBlueprint)
     api.register_blueprint(CountriesBlueprint)
+    api.register_blueprint(RentalBlueprint)
+    api.register_blueprint(ClientBlueprint)
 
     return app
 
