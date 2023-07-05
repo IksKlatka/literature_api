@@ -1,7 +1,6 @@
 import enum
 
 from db import db
-
 class RentStatus(enum.Enum): #note: for validation
     rented = "rented"
     extended = "rent extended"
