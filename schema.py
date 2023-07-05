@@ -53,3 +53,4 @@ class UpdateRentSchema(Schema):
 
 # class RentSchema(PlainRentSchema):
 #     book_id = fields.Integer(required=True, load_only=True)
+

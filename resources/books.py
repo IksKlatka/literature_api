@@ -42,7 +42,7 @@ class Book(MethodView):
         return book
 @blp.route('/book')
 class BookList(MethodView):
-    @blp.response(201, BookSchema(many=True))
+    @blp.response(200, BookSchema(many=True))
     def get(self):
         return BookModel.query.all()
 
