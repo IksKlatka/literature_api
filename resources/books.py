@@ -33,6 +33,7 @@ class Book(MethodView):
             book.genre = book_data['genre']
             book.year_published = book_data['year_published']
             book.country_id = book_data['country_id']
+            book.status_id = book_data['status_id']
         else:
             book = BookModel(book_id, **book_data)
 

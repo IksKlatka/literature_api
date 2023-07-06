@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, validate
-
+from sqlalchemy import Enum
 
 class PlainBookSchema(Schema):
     id = fields.String(dump_only=True)
@@ -7,6 +7,7 @@ class PlainBookSchema(Schema):
     author = fields.String(required=True)
     genre = fields.String(required=False)
     year_published = fields.Integer(required=False)
+    status_id = fields.Integer(required=True)
 
 class PlainCountrySchema(Schema):
     id = fields.String(dump_only=True)
@@ -45,12 +46,23 @@ class PlainRentSchema(Schema):
     client_id = fields.Integer(required=True)
     date_rented = fields.Date(required=True)
     date_returned = fields.Date(required=False)
-    status = fields.String(validate=validate.OneOf(['rented', 'extended', 'returned']), required=True)
+    status_id = fields.Integer(required=True)
 
 class UpdateRentSchema(Schema):
     date_returned = fields.Date(required=True)
-    status = fields.String(validate=validate.OneOf(['rented', 'extended', 'returned']), required=True)
+    status = fields.String(required=True)
 
-# class RentSchema(PlainRentSchema):
-#     book_id = fields.Integer(required=True, load_only=True)
+class StatusSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    description = fields.String(validate=validate.OneOf(['rented',
+                                                         'never_rented',
+                                                         'extended',
+                                                         'delayed',
+                                                         'returned']), required=True)
 
+class UpdateStatusSchema(Schema):
+    description = fields.String(validate=validate.OneOf(['rented',
+                                                         'never_rented',
+                                                         'extended',
+                                                         'delayed',
+                                                         'returned']), required=True)
