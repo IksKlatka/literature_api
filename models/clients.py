@@ -9,4 +9,5 @@ class ClientModel(db.Model):
     last_name = db.Column(db.String(80), unique=False,  nullable=False)
     email = db.Column(db.String(160), unique=True, nullable=False)
 
-    book_rent = db.relationship("BookRentModel", back_populates="client", lazy="dynamic")
+    book_rent = db.relationship("BookRentModel", back_populates="client",
+                                lazy="dynamic")

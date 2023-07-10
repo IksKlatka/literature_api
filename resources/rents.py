@@ -29,7 +29,6 @@ class BookRental(MethodView):
     @blp.arguments(UpdateRentSchema)
     @blp.response(201, PlainRentSchema)
     def put(self, rent_data, rent_id):
-
         book_rent = BookRentModel.query.get(rent_id)
 
         if book_rent:

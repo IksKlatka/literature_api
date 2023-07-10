@@ -32,5 +32,6 @@ def create_app(db_url= None):
     api.register_blueprint(RentalBlueprint)
     api.register_blueprint(ClientBlueprint)
 
+
     return app
 

@@ -23,7 +23,7 @@ class Client(MethodView):
         except SQLAlchemyError:
             abort(500, "SQLAlchemyError occurred while deleting client from db.")
 
-        return {"message": "Client {} successfully deleted".format(client_id)}
+        return {"message": "Client {} successfully deleted".format(client.first_name)}
 
     @blp.arguments(UpdateClientSchema)
     @blp.response(201, PlainClientSchema)
