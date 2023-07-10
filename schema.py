@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, validate
-
+from sqlalchemy import Enum
 
 class PlainBookSchema(Schema):
     id = fields.String(dump_only=True)
@@ -7,6 +7,8 @@ class PlainBookSchema(Schema):
     author = fields.String(required=True)
     genre = fields.String(required=False)
     year_published = fields.Integer(required=False)
+    status = fields.String(required=False, validate=validate.OneOf(['available',
+                                                                    'rented']))
 
 class PlainCountrySchema(Schema):
     id = fields.String(dump_only=True)
@@ -17,8 +19,10 @@ class UpdateBookSchema(Schema):
     title = fields.String(required=True)
     author = fields.String(required=True)
     genre = fields.String(required=False)
-    year_published = fields.Integer(required=True)
-    country_id = fields.Integer()
+    year_published = fields.Integer(required=False)
+    status = fields.String(required=False, validate=validate.OneOf(['available',
+                                                                    'rented']))
+    country_id = fields.Integer(required=False)
 
 
 class BookSchema(PlainBookSchema):
@@ -45,12 +49,13 @@ class PlainRentSchema(Schema):
     client_id = fields.Integer(required=True)
     date_rented = fields.Date(required=True)
     date_returned = fields.Date(required=False)
-    status = fields.String(validate=validate.OneOf(['rented', 'extended', 'returned']), required=True)
+    status = fields.String(required=True, validate=validate.OneOf(['rented',
+                                                                   'delayed',
+                                                                   'extended']))
 
 class UpdateRentSchema(Schema):
     date_returned = fields.Date(required=True)
-    status = fields.String(validate=validate.OneOf(['rented', 'extended', 'returned']), required=True)
-
-# class RentSchema(PlainRentSchema):
-#     book_id = fields.Integer(required=True, load_only=True)
+    status = fields.String(required=True, validate=validate.OneOf(['returned',
+                                                                   'delayed',
+                                                                   'extended']))
 

@@ -18,12 +18,12 @@ class Country(MethodView):
         country = CountryModel.query.get_or_404(country_id)
         db.session.delete(country)
         db.session.commit()
-        return {"message": "Country {} successfully deleted.".format(CountryModel.name)}
+        return {"message": "Country {} successfully deleted.".format(country.name)}
 
     @blp.arguments(CountrySchema)
     @blp.response(201, CountrySchema)
-    def put(self, country_id, country_data):
-        country = CountryModel(country_id)
+    def put(self, country_data, country_id):
+        country = CountryModel.query.get(country_id)
 
         if country:
             country.name = country_data['name']

@@ -28,13 +28,14 @@ class Book(MethodView):
 
         book = BookModel.query.get(book_id)
         if book:
-            book.title = book_data['title']
-            book.author = book_data['author']
-            book.genre = book_data['genre']
-            book.year_published = book_data['year_published']
-            book.country_id = book_data['country_id']
+            book.title = book_data.get('title', book.title)
+            book.author = book_data.get('author', book.author)
+            book.genre = book_data.get('genre', book.genre)
+            book.year_published = book_data.get('year_published', book.year_published)
+            book.status = book_data.get('status', book.status)
+            book.country_id = book_data.get('country_id', book.country_id)
         else:
-            book = BookModel(book_id, **book_data)
+            book = BookModel(id= book_id, **book_data)
 
         db.session.add(book)
         db.session.commit()
