@@ -1,7 +1,10 @@
-from flask import Flask
-from db import db
-from flask_smorest import Api
 import os
+
+from flask import Flask
+from flask_smorest import Api
+from flask_migrate import Migrate
+
+from db import db
 from resources.books import blp as BooksBlueprint
 from resources.countries import blp as CountriesBlueprint
 from resources.rents import blp as RentalBlueprint
@@ -22,10 +25,8 @@ def create_app(db_url= None):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    migrate = Migrate(app, db)
     api = Api(app)
-
-    with app.app_context():
-        db.create_all()
 
     api.register_blueprint(BooksBlueprint)
     api.register_blueprint(CountriesBlueprint)
