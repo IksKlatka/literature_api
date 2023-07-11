@@ -1,6 +1,10 @@
 flask
 flask-smorest
 flask-sqlalchemy
+flask-migrate
 marshmallow
 sqlalchemy
 python-dotenv
+alembic
+loguru
+psycopg2
