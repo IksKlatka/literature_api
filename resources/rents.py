@@ -1,9 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import db
-from models import BookRentModel
-from schema import PlainRentSchema, UpdateRentSchema
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from models import BookRentModel, BookModel
+from schema import PlainRentSchema, UpdateRentSchema, UpdateBookSchema
+from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("BookRental", __name__, description="Book rental CRUD.")
 
@@ -54,6 +54,13 @@ class ListBookRental(MethodView):
     def post(self, rent_data):
 
         book_rent = BookRentModel(**rent_data)
+        book = BookModel.query.get_or_404(rent_data['book_id'])
+
+        if book.status != "available":
+            abort(500, "You can not rent this book!")
+        else:
+            book.status = "rented"
+            # db.session.add(book)
         try:
             db.session.add(book_rent)
             db.session.commit()
