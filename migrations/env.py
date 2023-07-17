@@ -123,6 +123,7 @@ def run_migrations_online():
         with context.begin_transaction():
             context.run_migrations()
 
+
 if "seed" in context.get_x_argument(as_dictionary=True):
     print("Seeding enabled...")
 

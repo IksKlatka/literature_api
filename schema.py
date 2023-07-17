@@ -34,14 +34,15 @@ class CountrySchema(PlainCountrySchema):
 
 class PlainClientSchema(Schema):
     id = fields.Integer(dump_only=True)
-    first_name = fields.String(required=True)
+    first_name = fields.String(required=False)
     last_name = fields.String(required=True)
     email = fields.String(required=True)
+    password = fields.String(required=True, load_only=True)
 
 class UpdateClientSchema(Schema):
-    first_name = fields.String(required=True)
-    last_name = fields.String(required=True)
-    email = fields.String(required=True)
+    first_name = fields.String(required=False)
+    last_name = fields.String(required=False)
+    email = fields.String(required=False)
 
 class PlainRentSchema(Schema):
     id = fields.Integer(dump_only=True)

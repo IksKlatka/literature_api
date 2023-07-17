@@ -2,9 +2,11 @@ flask
 flask-smorest
 flask-sqlalchemy
 flask-migrate
+flask-jwt-extended
 marshmallow
 sqlalchemy
 python-dotenv
 alembic
 loguru
 psycopg2
+passlib

@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import db
-from models import BookRentModel, BookModel
+from models import BookRentModel, BookModel, ClientModel
 from schema import PlainRentSchema, UpdateRentSchema, UpdateBookSchema
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -18,6 +18,7 @@ class BookRental(MethodView):
 
     def delete(self, rent_id):
         book_rent = BookRentModel.query.get_or_404(rent_id)
+        # book = BookModel.
         try:
             db.session.delete(book_rent)
             db.session.commit()
@@ -30,10 +31,13 @@ class BookRental(MethodView):
     @blp.response(201, PlainRentSchema)
     def put(self, rent_data, rent_id):
         book_rent = BookRentModel.query.get(rent_id)
+        book = BookModel.query.get(book_rent.book_id)
 
         if book_rent:
             book_rent.date_returned = rent_data['date_returned']
             book_rent.status = rent_data['status']
+            if rent_data['status'] == 'returned':
+                book.status = 'available'
         else:
             book_rent = BookRentModel(id=rent_id, **rent_data)
 
@@ -68,3 +72,17 @@ class ListBookRental(MethodView):
             abort(500, "SQLAlchemyError occurred while inserting rental data to db.")
 
         return book_rent
+
+
+@blp.route("/rental/client/<int:client_id>")
+class ListClientRents(MethodView):
+
+    @blp.response(200, PlainRentSchema(many=True))
+    def get(self, client_id):
+
+        rentals = BookRentModel.query.filter_by(client_id=client_id).all()
+
+        if not rentals:
+            return {"message": "No rents for client with id {}".format(client_id)}
+        else:
+            return rentals
