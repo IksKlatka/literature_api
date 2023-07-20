@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
 from db import db
 from models import BookRentModel, BookModel, ClientModel
 from schema import PlainRentSchema, UpdateRentSchema, UpdateBookSchema
@@ -11,11 +12,13 @@ blp = Blueprint("BookRental", __name__, description="Book rental CRUD.")
 @blp.route('/rental/<string:rent_id>')
 class BookRental(MethodView):
 
+    # @jwt_required()
     @blp.response(200, PlainRentSchema)
     def get(self, rent_id):
         book_rent = BookRentModel.query.get_or_404(rent_id)
         return book_rent
 
+    # @jwt_required()
     def delete(self, rent_id):
         book_rent = BookRentModel.query.get_or_404(rent_id)
         # book = BookModel.
@@ -53,6 +56,7 @@ class ListBookRental(MethodView):
     def get(self):
         return BookRentModel.query.all()
 
+    # @jwt_required()
     @blp.arguments(PlainRentSchema)
     @blp.response(201, PlainRentSchema)
     def post(self, rent_data):
@@ -64,7 +68,7 @@ class ListBookRental(MethodView):
             abort(500, "You can not rent this book!")
         else:
             book.status = "rented"
-            # db.session.add(book)
+
         try:
             db.session.add(book_rent)
             db.session.commit()
@@ -77,6 +81,8 @@ class ListBookRental(MethodView):
 @blp.route("/rental/client/<int:client_id>")
 class ListClientRents(MethodView):
 
+    #todo: modify so that get accepts email in json instead of client id
+    # @jwt_required()
     @blp.response(200, PlainRentSchema(many=True))
     def get(self, client_id):
 

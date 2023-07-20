@@ -1,5 +1,7 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+import flask_jwt_extended as jwt
+from flask import jsonify
 from db import db
 from models import BookModel
 from schema import BookSchema, UpdateBookSchema, PlainBookSchema
@@ -15,16 +17,31 @@ class Book(MethodView):
         book = BookModel.query.get_or_404(book_id)
         return book
 
+    # @jwt.jwt_required()
     def delete(self, book_id):
+
+        client = jwt.get_jwt_identity()
+        if client != 1:
+            return(
+                jsonify({"message": "No admin privileges detected"}), 401
+            )
+
         book = BookModel.query.get_or_404(book_id)
         db.session.delete(book)
         db.session.commit()
 
         return {"message": "Book '{}' deleted.".format(book.title)}
 
+    # @jwt.jwt_required()
     @blp.arguments(UpdateBookSchema)
     @blp.response(200, BookSchema)
     def put(self, book_data, book_id):
+
+        # client = jwt.get_jwt_identity()
+        # if client != 1:
+        #     return (
+        #         jsonify({"message": "No admin privileges detected!"}), 401
+        #     )
 
         book = BookModel.query.get(book_id)
         if book:
@@ -47,9 +64,16 @@ class BookList(MethodView):
     def get(self):
         return BookModel.query.all()
 
+    # @jwt.jwt_required()
     @blp.arguments(BookSchema)
     @blp.response(201, BookSchema)
     def post(self, book_data):
+
+        client = jwt.get_jwt_identity()
+        if client != 1:
+            return (
+                jsonify({"message": "No admin privileges detected!"}), 401
+            )
 
         book = BookModel(**book_data)
         try:

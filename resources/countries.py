@@ -1,5 +1,7 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+from flask import jsonify
+import flask_jwt_extended as jwt
 from db import db
 from models import CountryModel
 from schema import CountrySchema
@@ -14,15 +16,33 @@ class Country(MethodView):
         country = CountryModel.query.get_or_404(country_id)
         return country
 
+    # @jwt.jwt_required()
     def delete(self, country_id):
+
+        client = jwt.get_jwt_identity()
+        if client != 1:
+            return (
+                jsonify({"message": "Lack of admin privileges sir!"}),
+                401,
+            )
+
         country = CountryModel.query.get_or_404(country_id)
         db.session.delete(country)
         db.session.commit()
         return {"message": "Country {} successfully deleted.".format(country.name)}
 
+    # @jwt.jwt_required()
     @blp.arguments(CountrySchema)
     @blp.response(201, CountrySchema)
     def put(self, country_data, country_id):
+
+        client = jwt.get_jwt_identity()
+        if client != 1:
+            return (
+                jsonify({"message": "Lack of admin privileges sir!"}),
+                401,
+            )
+
         country = CountryModel.query.get(country_id)
 
         if country:
@@ -43,9 +63,17 @@ class CountriesList(MethodView):
     def get(self):
         return CountryModel.query.all()
 
+    # @jwt.jwt_required()
     @blp.arguments(CountrySchema)
     @blp.response(201, CountrySchema)
     def post(self, country_data):
+
+        client = jwt.get_jwt_identity()
+        if client != 1:
+            return (
+                jsonify({"message": "Lack of admin privileges sir!"}),
+                401,
+            )
 
         country = CountryModel(**country_data)
 
