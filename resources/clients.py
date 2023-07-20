@@ -1,8 +1,15 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import (jwt_required,
+                                create_access_token,
+                                get_jwt,
+                                get_jwt_identity,
+                                create_refresh_token)
+from flask import jsonify
 from db import db
-from models import ClientModel
-from schema import PlainClientSchema, UpdateClientSchema, PlainRentSchema
+from blocklist import BLOCKLIST
+from models import ClientModel, ClientRoleModel, RoleModel, check_permissions
+from schema import PlainClientSchema, UpdateClientSchema, LoginClientSchema
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from passlib.hash import pbkdf2_sha256
 
@@ -30,6 +37,37 @@ class ClientRegister(MethodView):
 
         return {"message": "Client created!"}, 201
 
+@blp.route('/client/login')
+class ClientLogin(MethodView):
+
+    @blp.arguments(LoginClientSchema)
+    def post(self, client_data):
+        client = ClientModel.query.filter(ClientModel.email == client_data['email']).first()
+
+        if client and pbkdf2_sha256.verify(client_data['password'], client.password):
+            access_token = create_access_token(identity=client.id)
+            refresh_token = create_refresh_token(identity=client.id)
+            return {"access token": access_token,
+                    "refresh token": refresh_token}, 200
+
+        abort(401, "Invalid client data.")
+
+@blp.route('/client/logout')
+class ClientLogout(MethodView):
+    @jwt_required()
+    def post(self):
+        jti = get_jwt()['jti']
+        BLOCKLIST.add(jti)
+        return {"message": "Successfully logged out!"}, 200
+
+@blp.route('/client/refresh')
+class RefreshToken(MethodView):
+    @jwt_required(refresh=True)
+    def post(self):
+        jti = get_jwt()['jti']
+        BLOCKLIST.add(jti)
+        return {"access token": create_access_token(identity=get_jwt_identity(), fresh=False)}
+        # note: jwt_identity == identity of current client as we use client_id in out jwts
 
 @blp.route('/client/<int:client_id>')
 class Client(MethodView):
@@ -39,6 +77,7 @@ class Client(MethodView):
         client = ClientModel.query.get_or_404(client_id)
         return client
 
+    # @jwt_required()
     def delete(self, client_id):
         client = ClientModel.query.get_or_404(client_id)
         try:
@@ -49,6 +88,7 @@ class Client(MethodView):
 
         return {"message": "Client {} successfully deleted".format(client.first_name)}
 
+    # @jwt_required() #note: fresh=True - EMBRACE IT!
     @blp.arguments(UpdateClientSchema)
     @blp.response(201, PlainClientSchema)
     def put(self, client_data, client_id):
@@ -69,21 +109,17 @@ class Client(MethodView):
 @blp.route('/client')
 class ListClient(MethodView):
 
+    @jwt_required()
     @blp.response(200, PlainClientSchema(many=True))
     def get(self):
-        return ClientModel.query.all()
+        c_client = get_jwt_identity()
+        if check_permissions(c_client):
+            return ClientModel.query.all()
+        return (
+            jsonify({"message": "Lack of permissions."})
+        )
 
-    # @blp.arguments(PlainClientSchema)
-    # @blp.response(201, PlainClientSchema)
-    # def post(self, client_data):
-    #     client = ClientModel(**client_data)
-    #
-    #     try:
-    #         db.session.add(client)
-    #         db.session.commit()
-    #     except SQLAlchemyError:
-    #         abort(500, "SQLAlchemyError occurred while inserting client to db.")
-    #
-    #     return client
+
+
 
 
