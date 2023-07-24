@@ -2,9 +2,12 @@ flask
 flask-smorest
 flask-sqlalchemy
 flask-migrate
+flask-jwt-extended
 marshmallow
-sqlalchemy
+sqlalchemy==2.0.19
 python-dotenv
 alembic
 loguru
 psycopg2
+passlib
+asyncpg

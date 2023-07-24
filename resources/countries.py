@@ -1,7 +1,9 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+from flask import jsonify
+import flask_jwt_extended as jwt
 from db import db
-from models import CountryModel
+from models import CountryModel, check_admins_permissions
 from schema import CountrySchema
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -14,27 +16,39 @@ class Country(MethodView):
         country = CountryModel.query.get_or_404(country_id)
         return country
 
+    @jwt.jwt_required()
     def delete(self, country_id):
-        country = CountryModel.query.get_or_404(country_id)
-        db.session.delete(country)
-        db.session.commit()
-        return {"message": "Country {} successfully deleted.".format(country.name)}
 
+        if check_admins_permissions(jwt.get_jwt_identity()):
+            country = CountryModel.query.get_or_404(country_id)
+            db.session.delete(country)
+            db.session.commit()
+            return (
+                jsonify({"message": "Country {} successfully deleted.".format(country.name)}),
+                200
+            )
+        return {"message": "Lack of permissions."}
+
+    @jwt.jwt_required()
     @blp.arguments(CountrySchema)
     @blp.response(201, CountrySchema)
     def put(self, country_data, country_id):
-        country = CountryModel.query.get(country_id)
 
-        if country:
-            country.name = country_data['name']
-            country.continent = country_data['continent']
-        else:
-            country = CountryModel(id= country_id, **country_data)
+        if check_admins_permissions(jwt.get_jwt_identity()):
 
-        db.session.add(country)
-        db.session.commit()
+            country = CountryModel.query.get(country_id)
+            if country:
+                country.name = country_data['name']
+                country.continent = country_data['continent']
+            else:
+                country = CountryModel(id= country_id, **country_data)
+            db.session.add(country)
+            db.session.commit()
 
-        return country
+            return country
+        return (
+            jsonify({"message": "Lack of permissions."})
+        )
 
 @blp.route('/country')
 class CountriesList(MethodView):
@@ -43,18 +57,23 @@ class CountriesList(MethodView):
     def get(self):
         return CountryModel.query.all()
 
+    @jwt.jwt_required()
     @blp.arguments(CountrySchema)
     @blp.response(201, CountrySchema)
     def post(self, country_data):
 
-        country = CountryModel(**country_data)
+        if check_admins_permissions(jwt.get_jwt_identity()):
 
-        try:
-            db.session.add(country)
-            db.session.commit()
-        except IntegrityError:
-            abort(400, "Country already exists.")
-        except SQLAlchemyError:
-            abort(500, "SQLAlchemyError occurred while inserting country.")\
+            country = CountryModel(**country_data)
+            try:
+                db.session.add(country)
+                db.session.commit()
+            except IntegrityError:
+                abort(400, "Country already exists.")
+            except SQLAlchemyError:
+                abort(500, "SQLAlchemyError occurred while inserting country.")\
 
-        return country
+            return country
+        return (
+            jsonify({"message": "Lack of permissions."})
+        )
