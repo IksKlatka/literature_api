@@ -1,7 +1,6 @@
 from marshmallow import Schema, fields, validate
 from sqlalchemy import Enum
 
-#todo: create schemas for roles and client_roles
 class PlainBookSchema(Schema):
     id = fields.String(dump_only=True)
     title = fields.String(required=True)
@@ -44,6 +43,19 @@ class UpdateClientSchema(Schema):
     last_name = fields.String(required=False)
     email = fields.String(required=False)
 
+
+class RoleSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    name = fields.String(required=True)
+    tag = fields.String(required=True)
+
+class ClientRoleSchema(Schema):
+    client_id = fields.Integer(dump_only=True)
+    role_id = fields.Integer(dump_only=True)
+
+class AdminFromClientSchema(Schema):
+    client_id = fields.Integer(required=True)
+    role_id = fields.Integer(required=True)
 class LoginClientSchema(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True, load_only=True)

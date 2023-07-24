@@ -9,7 +9,7 @@ class ClientModel(db.Model):
     last_name = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(160), unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-
+    # role_id = db.Column(db.Integer, default= 3, unique=False, nullable=False)
     book_rent = db.relationship("BookRentModel", back_populates="client",
                                 lazy="dynamic")
 
@@ -33,8 +33,15 @@ class ClientRoleModel(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), primary_key=True)
 
 
-def check_permissions(client_id: int) -> bool:
+def check_admins_permissions(client_id: int) -> bool:
     if ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
             filter(RoleModel.tag == "admin" or RoleModel.tag == "super_admin"):
         return True
     return False
+
+def check_superadmin_permissions(client_id: int) -> bool:
+    if ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
+            filter(RoleModel.tag == "super_admin"):
+        return True
+    return False
+
