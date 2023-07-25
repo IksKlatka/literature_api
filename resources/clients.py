@@ -132,7 +132,7 @@ class ListClient(MethodView):
         )
 
 @blp.route('/client/role')
-class ClientRoles(MethodView):
+class ListClientRole(MethodView):
 
     @jwt.jwt_required()
     @blp.response(200, ClientRoleSchema(many=True))
@@ -178,4 +178,4 @@ class ClientRole(MethodView):
                 .filter(ClientRoleModel.client_id == client_id).first()
 
             return jsonify({"message": f"Your role: {role.name}"})
-        return jsonify({"mess": "You can only check your role."})
+        return jsonify({"message": f"You can only check your role. Your ID is {client}."})

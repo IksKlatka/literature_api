@@ -13,4 +13,4 @@ class BookModel(db.Model):
     country_id = db.Column(db.Integer, db.ForeignKey("countries.id"), unique=False, nullable=False)
 
     country = db.relationship("CountryModel", back_populates="books")
-    book_rent = db.relationship("BookRentModel", back_populates="book", cascade="all, delete")
+    book_rents = db.relationship("BookRentModel", back_populates="books", lazy="joined")

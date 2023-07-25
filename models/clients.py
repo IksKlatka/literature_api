@@ -1,3 +1,5 @@
+from flask import jsonify
+
 from db import db
 
 
@@ -34,14 +36,12 @@ class ClientRoleModel(db.Model):
 
 
 def check_admins_permissions(client_id: int) -> bool:
-    if ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
-            filter(RoleModel.tag == "admin" or RoleModel.tag == "super_admin"):
-        return True
-    return False
+    super_and_admin = ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
+        filter(RoleModel.id.in_([1, 2])).first()
+    return super_and_admin is not None
+
 
 def check_superadmin_permissions(client_id: int) -> bool:
-    if ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
-            filter(RoleModel.tag == "super_admin"):
-        return True
-    return False
-
+    super_admin = ClientModel.query.filter(ClientModel.id == client_id).join(ClientModel.roles). \
+        filter(RoleModel.id == 2).first()
+    return super_admin is not None

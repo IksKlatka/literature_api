@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask import jsonify
 import flask_jwt_extended as jwt
 from db import db
-from models import CountryModel, check_admins_permissions
+from models import CountryModel, check_admins_permissions, check_superadmin_permissions
 from schema import CountrySchema
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -65,15 +65,9 @@ class CountriesList(MethodView):
         if check_admins_permissions(jwt.get_jwt_identity()):
 
             country = CountryModel(**country_data)
-            try:
-                db.session.add(country)
-                db.session.commit()
-            except IntegrityError:
-                abort(400, "Country already exists.")
-            except SQLAlchemyError:
-                abort(500, "SQLAlchemyError occurred while inserting country.")\
-
-            return country
+            db.session.add(country)
+            db.session.commit()
+            return jsonify({"message": f"Country {country.name} successfully created."})
         return (
             jsonify({"message": "Lack of permissions."})
         )

@@ -74,5 +74,7 @@ class BookList(MethodView):
             return jsonify(
                 {"message": f"Book {book_data['title']} by {book_data['author']} created successfully."}
             ), 201
+        return jsonify({"message": "Lack of permissions."})
+
 
 

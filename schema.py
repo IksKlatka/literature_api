@@ -10,6 +10,7 @@ class PlainBookSchema(Schema):
     status = fields.String(required=False, validate=validate.OneOf(['available',
                                                                     'rented']))
 
+# note: UpdateCountry is same as PlainCountry that's why it doesn't exist
 class PlainCountrySchema(Schema):
     id = fields.String(dump_only=True)
     name = fields.String(required=True)
@@ -38,11 +39,17 @@ class PlainClientSchema(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True, load_only=True)
 
+class AdminFromClientSchema(Schema):
+    client_id = fields.Integer(required=True)
+    role_id = fields.Integer(required=True)
+class LoginClientSchema(Schema):
+    email = fields.String(required=True)
+    password = fields.String(required=True, load_only=True)
+
 class UpdateClientSchema(Schema):
     first_name = fields.String(required=False)
     last_name = fields.String(required=False)
     email = fields.String(required=False)
-
 
 class RoleSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -53,12 +60,7 @@ class ClientRoleSchema(Schema):
     client_id = fields.Integer(dump_only=True)
     role_id = fields.Integer(dump_only=True)
 
-class AdminFromClientSchema(Schema):
-    client_id = fields.Integer(required=True)
-    role_id = fields.Integer(required=True)
-class LoginClientSchema(Schema):
-    email = fields.String(required=True)
-    password = fields.String(required=True, load_only=True)
+
 
 class PlainRentSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -69,6 +71,9 @@ class PlainRentSchema(Schema):
     status = fields.String(required=True, validate=validate.OneOf(['rented',
                                                                    'delayed',
                                                                    'extended']))
+
+    books = fields.Nested(PlainBookSchema())
+
 
 class UpdateRentSchema(Schema):
     date_returned = fields.Date(required=True)

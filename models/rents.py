@@ -10,5 +10,6 @@ class BookRentModel(db.Model):
     date_returned = db.Column(db.Date, unique=False, nullable=True)
     status = db.Column(db.String, unique=False, nullable=False)
 
-    book = db.relationship("BookModel", back_populates="book_rent", foreign_keys=[book_id])
-    client = db.relationship("ClientModel", back_populates="book_rent", foreign_keys=[client_id])
+    books = db.relationship("BookModel", back_populates="book_rents",
+                            lazy="joined")
+    client = db.relationship("ClientModel", back_populates="book_rent", lazy="joined")
