@@ -22,9 +22,9 @@ async def create_books(dbi: db_insert()):
     for b in books:
         async with dbi.pool.acquire() as connection:
             record = await connection.fetchrow(
-                "insert into books(title, author, genre, year_published, status, country_id) "
-                "values ($1, $2, $3, $4, $5, $6)",
-                b.title, b.author, b.genre, b.year_published, b.status, b.country_id
+                "insert into books(title, author, genre, year_published, status, country_id, times_rented) "
+                "values ($1, $2, $3, $4, $5, $6, $7)",
+                b.title, b.author, b.genre, b.year_published, b.status, b.country_id, b.times_rented
             )
     if record:
         return {"message": "everything ok"}
@@ -36,8 +36,8 @@ async def create_clients(dbi: db_insert()):
     for c in clients:
         async with dbi.pool.acquire() as connection:
             record = await connection.fetchrow(
-                "insert into clients(first_name, last_name, email, password) values ($1,$2,$3,$4)",
-                c.first_name, c.last_name, c.email, c.password
+                "insert into clients(first_name, last_name, email, password, no_books_rented) values ($1,$2,$3,$4,$5)",
+                c.first_name, c.last_name, c.email, c.password, c.no_books_rented
             )
 
     if record:
@@ -77,13 +77,14 @@ async def create_rents(dbi: db_insert()):
         async with dbi.pool.acquire() as connection:
             record = await connection.fetchrow(
                 "insert into book_rent(book_id, client_id, date_rented, date_returned, status ) "
-                "values ($1, $2, $3, $4, $5)", r.book_id, r.client_id, r.date_rented, r.date_returned, r.status
+                "values ($1, $2, $3, $4, $5)",
+                r.book_id, r.client_id, r.date_rented, r.date_returned, r.status,
             )
     if record:
         return {"message": "everything ok"}
     return {"message": "something went wrong."}
 
-
+# todo: clean database function
 
 async def main():
     dbi = db_insert()

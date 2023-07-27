@@ -7,19 +7,19 @@ countries = [CountryModel(name="Poland", continent="Europe"),
              CountryModel(name="Germany", continent="Europe")]
 
 books = [BookModel(title="Iluzjonista", author="Remigiusz Mroz", genre="crime",
-                   year_published=2019, status="available", country_id=1),
+                   year_published=2019, status="available", country_id=1, times_rented=1),
          BookModel(title="Ekstremista", author="Remigiusz Mroz", genre="crime",
-                   year_published=2021, status="available", country_id=1),
+                   year_published=2021, status="available", country_id=1, times_rented=2),
          BookModel(title="Duch Zaglady", author="Graham Masterton", genre="horror",
-                   year_published=2021, status="available", country_id=2)
+                   year_published=2021, status="available", country_id=2, times_rented=0)
          ]
 
 clients = [ClientModel(first_name="John", last_name="Doe", email="doe.male@mail.com",
-                       password = pbkdf2_sha256.hash("died_in_1987")),
+                       password = pbkdf2_sha256.hash("died_in_1987"), no_books_rented=1),
            ClientModel(first_name="Jane", last_name="Doe", email="doe.female@mail.com",
-                       password=pbkdf2_sha256.hash("died_in_1992")),
+                       password=pbkdf2_sha256.hash("died_in_1992"), no_books_rented=1),
            ClientModel(first_name="N", last_name="N", email="no.name@mail.com",
-                       password = pbkdf2_sha256.hash("who_am_i"))]
+                       password = pbkdf2_sha256.hash("who_am_i"), no_books_rented=1)]
 
 roles = [RoleModel(name="Administrator", tag="admin"),
          RoleModel(name="Super-Administrator", tag="super_admin"),

@@ -32,7 +32,8 @@ class ClientRegister(MethodView):
             first_name= client_data['first_name'],
             last_name= client_data['last_name'],
             email = client_data['email'],
-            password = pbkdf2_sha256.hash(client_data['password'])
+            password = pbkdf2_sha256.hash(client_data['password']),
+            no_books_rented = 0
         )
 
         db.session.add(client)
