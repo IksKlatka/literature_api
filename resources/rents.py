@@ -50,7 +50,7 @@ class BookRental(MethodView):
             book_rent.status = rent_data['status']
             if rent_data['status'] == 'returned':
                 book.status = 'available'
-                client.no_books_returned += 1
+                client.no_books_rented += 1
         else:
             book_rent = BookRentModel(id=rent_id, **rent_data)
 
@@ -67,7 +67,7 @@ class ListBookRental(MethodView):
     def get(self):
         return BookRentModel.query.all()
 
-    # @jwt.jwt_required()
+    @jwt.jwt_required()
     @blp.arguments(PlainRentSchema)
     @blp.response(201, PlainRentSchema)
     def post(self, rent_data):
@@ -75,8 +75,10 @@ class ListBookRental(MethodView):
         book = BookModel.query.get_or_404(rent_data['book_id'])
         book_rent = BookRentModel(**rent_data)
 
+        if jwt.get_jwt_identity() != book_rent.client_id:
+            return jsonify({"message": "You can rent books only for yourself."})
         if book.status != "available":
-            abort(500, "You can not rent this book!")
+            return jsonify({"message": "This book is not available at this moment."})
         else:
             book.status = "rented"
             book.times_rented += 1
