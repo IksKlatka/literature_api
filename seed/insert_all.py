@@ -1,10 +1,10 @@
 import asyncio
-from db_conf import db_insert
+from db_conf import db_connection
 from asyncio import run
 from datas import *
 
 
-async def create_countries(dbi: db_insert()):
+async def create_countries(dbi: db_connection()):
 
     for c in countries:
         async with dbi.pool.acquire() as connection:
@@ -17,7 +17,7 @@ async def create_countries(dbi: db_insert()):
         return {"message": "everything ok"}
     return {"message": "something went wrong"}
 
-async def create_books(dbi: db_insert()):
+async def create_books(dbi: db_connection()):
 
     for b in books:
         async with dbi.pool.acquire() as connection:
@@ -31,7 +31,7 @@ async def create_books(dbi: db_insert()):
     return {"message": "something went wrong"}
 
 
-async def create_clients(dbi: db_insert()):
+async def create_clients(dbi: db_connection()):
 
     for c in clients:
         async with dbi.pool.acquire() as connection:
@@ -44,7 +44,7 @@ async def create_clients(dbi: db_insert()):
         return {"message": "everything ok"}
     return {"message": "something went wrong"}
 
-async def create_roles(dbi: db_insert()):
+async def create_roles(dbi: db_connection()):
 
     for r in roles:
         async with dbi.pool.acquire() as connection:
@@ -57,7 +57,7 @@ async def create_roles(dbi: db_insert()):
         return {"message": "everything ok"}
     return {"message": "something went wrong"}
 
-async def create_client_roles(dbi: db_insert()):
+async def create_client_roles(dbi: db_connection()):
 
     for cr in client_roles:
         async with dbi.pool.acquire() as connection:
@@ -71,7 +71,7 @@ async def create_client_roles(dbi: db_insert()):
     return {"message": "something went wrong"}
 
 
-async def create_rents(dbi: db_insert()):
+async def create_rents(dbi: db_connection()):
 
     for r in rents:
         async with dbi.pool.acquire() as connection:
@@ -87,7 +87,7 @@ async def create_rents(dbi: db_insert()):
 # todo: clean database function
 
 async def main():
-    dbi = db_insert()
+    dbi = db_connection()
     await dbi.initialize()
 
     c = await create_countries(dbi)
