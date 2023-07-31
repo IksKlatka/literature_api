@@ -76,7 +76,7 @@ class PlainRentSchema(Schema):
                                                                    'delayed',
                                                                    'extended']))
 
-    books = fields.Nested(PlainBookSchema())
+    books = fields.Nested(PlainBookSchema(), dump_only=True)
 
 
 class UpdateRentSchema(Schema):
