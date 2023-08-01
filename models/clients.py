@@ -11,6 +11,7 @@ class ClientModel(db.Model):
     last_name = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(160), unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    no_books_rented = db.Column(db.Integer, unique=False, nullable=False)
     # role_id = db.Column(db.Integer, default= 3, unique=False, nullable=False)
     book_rent = db.relationship("BookRentModel", back_populates="client",
                                 lazy="dynamic")

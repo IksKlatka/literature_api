@@ -11,6 +11,7 @@ from resources.books import blp as BooksBlueprint
 from resources.countries import blp as CountriesBlueprint
 from resources.rents import blp as RentalBlueprint
 from resources.clients import blp as ClientBlueprint
+from resources.roles import blp as RoleBlueprint
 
 
 def create_app(db_url= None):
@@ -31,12 +32,6 @@ def create_app(db_url= None):
     migrate = Migrate(app, db)
     api = Api(app)
     jwt = JWTManager(app)
-
-    @jwt.additional_claims_loader
-    def add_claim(identity):
-        if identity == 1:
-            return {"admin": True}
-        return {"admin": False}
 
     @jwt.token_in_blocklist_loader
     def check_token_in_blacklist(jwt_header, jwt_payload):
@@ -75,6 +70,7 @@ def create_app(db_url= None):
     api.register_blueprint(CountriesBlueprint)
     api.register_blueprint(RentalBlueprint)
     api.register_blueprint(ClientBlueprint)
+    api.register_blueprint(RoleBlueprint)
 
 
     return app
