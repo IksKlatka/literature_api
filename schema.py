@@ -12,7 +12,6 @@ class PlainBookSchema(Schema):
     times_rented = fields.Integer(required=False)
 
 
-# note: UpdateCountry is same as PlainCountry that's why it doesn't exist
 class PlainCountrySchema(Schema):
     id = fields.String(dump_only=True)
     name = fields.String(required=True)
