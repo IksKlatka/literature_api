@@ -82,10 +82,15 @@ class RefreshToken(MethodView):
 @blp.route('/client/<int:client_id>')
 class Client(MethodView):
 
+    @jwt.jwt_required()
     @blp.response(200, PlainClientSchema)
     def get(self, client_id):
-        client = ClientModel.query.get_or_404(client_id)
-        return client
+
+        c_client = jwt.get_jwt_identity()
+        if c_client == client_id or check_admins_permissions(c_client):
+            return ClientModel.query.get_or_404(client_id)
+        return jsonify({"message": "Lack of permissions."})
+
 
     @jwt.jwt_required()
     def delete(self, client_id):

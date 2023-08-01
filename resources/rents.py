@@ -12,7 +12,7 @@ from schema import PlainRentSchema, UpdateRentSchema, UpdateBookSchema
 blp = Blueprint("BookRental", __name__, description="Book rental CRUD.")
 
 
-@blp.route('/rental/<string:rent_id>')
+@blp.route('/rental/<int:rent_id>')
 class BookRental(MethodView):
 
     @jwt.jwt_required()
@@ -40,10 +40,15 @@ class BookRental(MethodView):
     @blp.arguments(UpdateRentSchema)
     @blp.response(201, PlainRentSchema)
     def put(self, rent_data, rent_id):
-        book_rent = BookRentModel.query.get(rent_id)
+        book_rent = BookRentModel.query.get(id= rent_id)
         book = BookModel.query.get(book_rent.book_id)
         client_id = jwt.get_jwt_identity()
         client = ClientModel.query.get_or_404(client_id)
+
+        if client_id != book_rent.client_id:
+            return (
+                jsonify({"message": "Lack of permissions."})
+            )
 
         if book_rent:
             book_rent.date_returned = rent_data['date_returned']
@@ -63,9 +68,15 @@ class BookRental(MethodView):
 @blp.route('/rental')
 class ListBookRental(MethodView):
 
+    @jwt.jwt_required()
     @blp.response(200, PlainRentSchema(many=True))
     def get(self):
-        return BookRentModel.query.all()
+        c_client = jwt.get_jwt_identity()
+        if check_admins_permissions(c_client):
+            return BookRentModel.query.all()
+        return (
+            jsonify({"message": "Lack of permissions."})
+        )
 
     @jwt.jwt_required()
     @blp.arguments(PlainRentSchema)
@@ -95,13 +106,12 @@ class ListBookRental(MethodView):
 @blp.route("/rental/client/<int:client_id>")
 class ListClientRents(MethodView):
 
-    # todo: Client can only see all its book_rents!! sth's wrong here
     @jwt.jwt_required()
     @blp.response(200, PlainRentSchema(many=True))
     def get(self, client_id):
 
-        client = ClientModel.query.get_or_404(client_id)
-        if jwt.get_jwt_identity() == client_id or check_admins_permissions(client_id):
+        client = jwt.get_jwt_identity()
+        if client == client_id or check_admins_permissions(client):
             rentals = BookRentModel.query.filter_by(client_id=client_id).all()
             if not rentals:
                 return jsonify({"message": f"No rents for client with id {client_id}"})

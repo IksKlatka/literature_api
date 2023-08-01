@@ -27,23 +27,17 @@ class ListClientRole(MethodView):
     @blp.response(200, ClientRoleSchema)
     def get(self, client_id):
 
-        client = ClientRoleModel.query.get_or_404(client_id)
-        if client_id == jwt.get_jwt_identity():
-            return client
-        return jsonify({"message": "Lack of permissions."})
+        client = jwt.get_jwt_identity()
+
+        if client == client_id or check_admins_permissions(client):
+            client_role = ClientRoleModel.query.filter_by(client_id=client_id).first()
+            return client_role
+        else:
+            return jsonify({"message": "Lack of permissions."})
 
 
 @blp.route('/role')
 class ListClientRole(MethodView):
-
-    @jwt.jwt_required()
-    @blp.response(200, ClientRoleSchema)
-    def get(self, client_id):
-
-        if client_id == jwt.get_jwt_identity():
-            client = ClientRoleModel.query.get_or_404(client_id)
-            return client
-        return jsonify({"message": "Lack of permissions."})
 
     @jwt.jwt_required()
     @blp.response(200, ClientRoleSchema(many=True))
@@ -78,7 +72,10 @@ class ListClientRole(MethodView):
 
                 db.session.add(client_role)
                 db.session.commit()
-                return jsonify({"message": f"Client {client_role} updated to admin successfully."})
+
+                new_role = RoleModel.query.get(admin_data['role_id'])
+
+                return jsonify({"message": f"Client {client_role.client_id} updated to {new_role.name} successfully."})
         return jsonify({"message": "Lack of permissions."})
 
 @blp.route('/client/<int:client_id>/role')
