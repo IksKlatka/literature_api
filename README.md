@@ -1,2 +1,2 @@
 
-Flask REST API backend app for crud operations on countries and their literature, also "library" functionality in progress.
+Flask REST API about countries, books and with library functionality with user authorization.
