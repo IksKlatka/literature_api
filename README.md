@@ -1,2 +1,2 @@
 
-Flask REST API about countries, books and with library functionality with user authorization.
+Flask REST API with library functionality and user authorization.
