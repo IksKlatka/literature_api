@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 blp = Blueprint("Books", __name__, description="Books CRUD.")
 
-@blp.route('/book/<string:book_id>')
+@blp.route('/book/<int:book_id>')
 class Book(MethodView):
     @blp.response(200, BookSchema)
     def get(self, book_id):

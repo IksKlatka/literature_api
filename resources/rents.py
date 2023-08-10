@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 blp = Blueprint("BookRental", __name__, description="Book rental CRUD.")
 
 
-@blp.route('/rental/<string:rent_id>')
+@blp.route('/rental/<int:rent_id>')
 class BookRental(MethodView):
 
     @jwt.jwt_required()

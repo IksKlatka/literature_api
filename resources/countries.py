@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 blp = Blueprint("Countries", __name__, description="Countries CRUD.")
 
-@blp.route('/country/<string:country_id>')
+@blp.route('/country/<int:country_id>')
 class Country(MethodView):
     @blp.response(200, CountrySchema)
     def get(self, country_id):

@@ -2,7 +2,7 @@ from marshmallow import Schema, fields, validate
 from sqlalchemy import Enum
 
 class PlainBookSchema(Schema):
-    id = fields.String(dump_only=True)
+    id = fields.Integer(dump_only=True)
     title = fields.String(required=True)
     author = fields.String(required=True)
     genre = fields.String(required=False)
@@ -10,9 +10,8 @@ class PlainBookSchema(Schema):
     status = fields.String(required=False, validate=validate.OneOf(['available',
                                                                     'rented']))
 
-# note: UpdateCountry is same as PlainCountry that's why it doesn't exist
 class PlainCountrySchema(Schema):
-    id = fields.String(dump_only=True)
+    id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     continent = fields.String(required=True)
 
