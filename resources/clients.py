@@ -32,7 +32,8 @@ class ClientRegister(MethodView):
             first_name= client_data['first_name'],
             last_name= client_data['last_name'],
             email = client_data['email'],
-            password = pbkdf2_sha256.hash(client_data['password'])
+            password = pbkdf2_sha256.hash(client_data['password']),
+            no_books_rented = 0
         )
 
         db.session.add(client)
@@ -81,10 +82,15 @@ class RefreshToken(MethodView):
 @blp.route('/client/<int:client_id>')
 class Client(MethodView):
 
+    @jwt.jwt_required()
     @blp.response(200, PlainClientSchema)
     def get(self, client_id):
-        client = ClientModel.query.get_or_404(client_id)
-        return client
+
+        c_client = jwt.get_jwt_identity()
+        if c_client == client_id or check_admins_permissions(c_client):
+            return ClientModel.query.get_or_404(client_id)
+        return jsonify({"message": "Lack of permissions."})
+
 
     @jwt.jwt_required()
     def delete(self, client_id):
@@ -130,52 +136,3 @@ class ListClient(MethodView):
         return (
             jsonify({"message": "Lack of permissions."})
         )
-
-@blp.route('/client/role')
-class ListClientRole(MethodView):
-
-    @jwt.jwt_required()
-    @blp.response(200, ClientRoleSchema(many=True))
-    def get(self):
-        c_client = jwt.get_jwt_identity()
-        if check_admins_permissions(c_client):
-            return ClientRoleModel.query.all()
-        return jsonify({"message": "Lack of permissions."})
-
-
-    @jwt.jwt_required()
-    @blp.arguments(AdminFromClientSchema)
-    @blp.response(201, ClientRoleModel)
-    def put(self, admin_data):
-
-        if check_superadmin_permissions(jwt.get_jwt_identity()):
-            client = ClientModel.query.filter_by(id=admin_data['client_id']).first()
-            role = RoleModel.query.filter_by(id=admin_data['role_id']).first()
-            if client and role:
-
-                past_role = ClientRoleModel.query.filter_by(client_id=admin_data['client_id']).first()
-                db.session.delete(past_role)
-
-                client_role = ClientRoleModel(
-                    client_id = admin_data['client_id'],
-                    role_id = admin_data['role_id'])
-
-                db.session.add(client_role)
-                db.session.commit()
-                return jsonify({"message": f"Client {client_role} updated to admin successfully."})
-        return jsonify({"message": "Lack of permissions."})
-
-@blp.route('/client/<int:client_id>/role')
-class ClientRole(MethodView):
-
-    @jwt.jwt_required()
-    @blp.response(200, ClientRoleSchema)
-    def get(self, client_id):
-
-        client = jwt.get_jwt_identity()
-        if client == client_id:
-            role = RoleModel.query.join(ClientRoleModel, ClientRoleModel.role_id == RoleModel.id) \
-                .filter(ClientRoleModel.client_id == client_id).first()
-
-            return jsonify({"message": f"Your role: {role.name}"})
-        return jsonify({"message": f"You can only check your role. Your ID is {client}."})

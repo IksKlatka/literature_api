@@ -63,13 +63,13 @@ class BookList(MethodView):
     @blp.response(201, BookSchema)
     def post(self, book_data):
 
-        if check_admins_permissions(jwt.get_jwt_identity()):
+        client = jwt.get_jwt_identity()
+        if check_admins_permissions(client):
             book = BookModel(**book_data)
-            try:
-                db.session.add(book)
-                db.session.commit()
-            except SQLAlchemyError:
-                abort(500, "SQLAlchemyError occurred while inserting book.")
+            book.times_rented = 0
+
+            db.session.add(book)
+            db.session.commit()
 
             return jsonify(
                 {"message": f"Book {book_data['title']} by {book_data['author']} created successfully."}

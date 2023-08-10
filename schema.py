@@ -9,6 +9,8 @@ class PlainBookSchema(Schema):
     year_published = fields.Integer(required=False)
     status = fields.String(required=False, validate=validate.OneOf(['available',
                                                                     'rented']))
+    times_rented = fields.Integer(required=False)
+
 
 class PlainCountrySchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -37,10 +39,12 @@ class PlainClientSchema(Schema):
     last_name = fields.String(required=True)
     email = fields.String(required=True)
     password = fields.String(required=True, load_only=True)
+    no_books_rented = fields.Integer(required=False)
 
 class AdminFromClientSchema(Schema):
     client_id = fields.Integer(required=True)
     role_id = fields.Integer(required=True)
+
 class LoginClientSchema(Schema):
     email = fields.String(required=True)
     password = fields.String(required=True, load_only=True)
@@ -71,7 +75,7 @@ class PlainRentSchema(Schema):
                                                                    'delayed',
                                                                    'extended']))
 
-    books = fields.Nested(PlainBookSchema())
+    books = fields.Nested(PlainBookSchema(), dump_only=True)
 
 
 class UpdateRentSchema(Schema):

@@ -45,7 +45,8 @@ class Country(MethodView):
             db.session.add(country)
             db.session.commit()
 
-            return country
+            return jsonify({"message": f"Country {country_data['name']} updated successfully."}), 201
+
         return (
             jsonify({"message": "Lack of permissions."})
         )
